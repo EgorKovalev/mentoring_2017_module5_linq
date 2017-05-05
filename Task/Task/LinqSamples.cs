@@ -94,14 +94,61 @@ namespace SampleQueries
 		[Description("Group by country and city")]
 		public void Linq002()
 		{
-			//var c = dataSource.Customers;
-			//var p = dataSource.Products;
-			//var s = dataSource.Suppliers;
+		    foreach (Customer customer in dataSource.Customers)
+		    {
+		        var suppliers = dataSource.Suppliers.Where(s => s.City == customer.City && s.Country == customer.Country).ToList();
+                if (suppliers.Count != 0) { Console.WriteLine("Customer id: " + customer.CustomerID); } //to avoid displaying customers without suppliers
+                suppliers.ForEach(supplier => Console.WriteLine(supplier.SupplierName));
+		    }
 
-			List<Supplier> suppliers = new List<Supplier>();
-			dataSource.Customers.ForEach(c => suppliers.AddRange(dataSource.Suppliers.Where(s => s.City.Equals(c.City) && s.Country.Equals(c.Country))));
-
-
+		    var customers =
+		        dataSource.Customers.Select(c =>
+		                new
+		                {
+		                    Cust = c.CompanyName,
+		                    Suppl = dataSource.Suppliers.Where(s => s.City == c.City && s.Country == c.Country).ToList()
+                        }).GroupBy(c => c.Cust).ToList();
 		}
+
+	    [Category("My LINQ")]
+	    [Title("LINQ task 003")]
+	    [Description("Orders sum more than value")]
+	    public void Linq003()
+	    {
+	        int value = 10000;
+	        var customers = dataSource.Customers.Where(c => c.Orders.Sum(v => v.Total) > value).ToList();
+            customers.ForEach(customer => Console.WriteLine(@"Customer: {0}; Total orders: {1}",
+                customer.CompanyName, customer.Orders.Sum(v => v.Total)));
+	    }
+
+        [Category("My LINQ")]
+        [Title("LINQ task 004")]
+        [Description("First order date")]
+        public void Linq004()
+        {
+            var customers =
+                dataSource.Customers.Where(o => o.Orders.Count() != 0).Select(c => new {name = c.CompanyName, date = c.Orders.Min(d => d.OrderDate)})
+                    .ToList();
+            customers.ForEach(customer => Console.WriteLine(@"Customer: {0}; First order: {1}",
+                customer.name, customer.date));
+        }
+
+        [Category("My LINQ")]
+        [Title("LINQ task 005")]
+        [Description("Sorted first order date")]
+        public void Linq005()
+        {
+            var customers =
+                dataSource.Customers.Where(o => o.Orders.Count() != 0)
+                .Select(c => new { name = c.CompanyName, date = c.Orders.Min(d => d.OrderDate), value = c.Orders.Sum(v => v.Total) })
+                .Distinct()
+                .OrderByDescending(d => d.date.Year)
+                .ThenByDescending(m => m.date.Month)
+                .ThenByDescending(v => v.value)
+                .ThenByDescending(n => n.name)
+                .ToList();
+            customers.ForEach(customer => Console.WriteLine(@"Customer: {0}; First order: {1}",
+                customer.name, customer.date));
+        }
 	}
 }
