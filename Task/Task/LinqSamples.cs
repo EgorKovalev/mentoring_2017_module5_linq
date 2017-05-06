@@ -150,5 +150,53 @@ namespace SampleQueries
             customers.ForEach(customer => Console.WriteLine(@"Customer: {0}; First order: {1}",
                 customer.name, customer.date));
         }
+
+		[Category("My LINQ")]
+		[Title("LINQ task 006")]
+		[Description("Not digital post code")]
+		public void Linq006()
+		{
+			int post;
+			var customers = dataSource.Customers.Where(c => !int.TryParse(c.PostalCode, out post) || String.IsNullOrEmpty(c.Region) || !c.Phone[0].Equals("(")).ToList();
+		}
+
+		[Category("My LINQ")]
+		[Title("LINQ task 007")]
+		[Description("Group by the list")]
+		public void Linq007()
+		{
+			var products = dataSource.Products.GroupBy(p => p.Category).Select(presence => presence.GroupBy(p => p.UnitsInStock).Select(cost => cost.OrderBy(o => o.UnitPrice)));
+		}
+
+		[Category("My LINQ")]
+		[Title("LINQ task 008")]
+		[Description("Select by ranges")]
+		public void Linq008()
+		{
+			decimal min = 20M;
+			decimal aver = 50M;
+			decimal max = 100M;
+
+			var ranges = new[] {min, aver, max};
+
+			var products = dataSource.Products.GroupBy(x => ranges.FirstOrDefault(r => r > x.UnitPrice));
+		}
+
+		[Category("My LINQ")]
+		[Title("LINQ task 009")]
+		[Description("Average income")]
+		public void Linq009()
+		{			
+			IEnumerable cities = dataSource.Customers.GroupBy(customer => customer.City).Select(g => new { City = g.Key, Amount = g.Sum(c => c.Orders.Sum(v => v.Total)) });
+			var customers = dataSource.Customers.GroupBy(customer => customer.City).Select(customer => new { Amount = customer.Sum(c => c.Orders.Sum(v => (v.Total)) / customer.Count()), City = customer.Key });
+		}
+
+		[Category("My LINQ")]
+		[Title("LINQ task 010")]
+		[Description("Statistic")]
+		public void Linq010()
+		{
+			
+		}
 	}
 }
