@@ -227,8 +227,6 @@ namespace SampleQueries
                     Count = c.Count()
                 })
             });
-
-		    var test = "";
-		}
+        }
 	}
 }
