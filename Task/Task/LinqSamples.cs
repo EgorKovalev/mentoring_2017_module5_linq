@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -196,7 +197,38 @@ namespace SampleQueries
 		[Description("Statistic")]
 		public void Linq010()
 		{
-			
+		    var customerYearStatistic = dataSource.Customers.Select(p => new
+		    {
+                Name = p.CustomerID,                
+		        Orders = p.Orders.GroupBy(x => x.OrderDate.Year).Select(c => new
+		        {
+                    Year = c.Key,
+                    Count = c.Count()
+		        })
+		    });
+
+            var customerMonthStatistic = dataSource.Customers.Select(p => new
+            {
+                Name = p.CustomerID,
+                Orders = p.Orders.GroupBy(x => x.OrderDate.Month).Select(c => new
+                {
+                    Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Key),
+                    Count = c.Count()
+                })
+            });
+
+            var customerMonthAndYearsStatistic = dataSource.Customers.Select(p => new
+            {
+                Name = p.CustomerID,
+                Orders = p.Orders.GroupBy(x => new { x.OrderDate.Month, x.OrderDate.Year}).Select(c => new
+                {
+                    Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(c.Key.Month),
+                    Year = c.Key.Year,
+                    Count = c.Count()
+                })
+            });
+
+		    var test = "";
 		}
 	}
 }
